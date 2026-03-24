@@ -1,0 +1,27 @@
+info:
+  name: test
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{url}}/todos"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "alachh",
+        "status": 1
+      }
+  auth: inherit
+
+runtime:
+  variables:
+    - name: url
+      value: https://psychic-guide-x5p4r7rrg6q6fpgwg-3000.app.github.dev
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
