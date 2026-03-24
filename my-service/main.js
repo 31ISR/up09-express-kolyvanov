@@ -1,6 +1,6 @@
 const express = require('express');
 const db = require('./db');
-cosnt jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const SECRET = 'kjkdjfdkdjfdkf';
 const app = express();
 
@@ -48,7 +48,7 @@ app.post("/auth/signin", (req, res) => {
     const { email, password } = req.body;
     try {
         if (!email || !password) return res.status(400).json({ message: "Email and password are required" });
-            return res.status(400).json({ message: "Sign in successful" });
+            // return res.status(400).json({ message: "Sign in successful" });
 
             const user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
             if (!user) return res.status(401).json({ message: "Invalid credentials" });
@@ -58,6 +58,7 @@ app.post("/auth/signin", (req, res) => {
 
             const { password: _, ...safeUser } = user;
             const token = jwt.sign(safeUser, SECRET, { expiresIn: "24h" });
+            return res.status(200).json({success: true, token, error: null});
 
     } catch (error){
         console.error(error);
