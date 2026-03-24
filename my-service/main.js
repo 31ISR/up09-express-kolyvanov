@@ -3,6 +3,7 @@ const db = require('./db');
 const jwt = require('jsonwebtoken');
 const bcr = require('bcrypt');
 const app = express();
+const SECRET = "mysecretkey";
 app.use(express.json());
 
 const auth = (req, res, next) => {
@@ -16,8 +17,12 @@ const auth = (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, SECRET);
+        req.user = decoded;
+        next();
+
     } catch (error) {
         console.error(error);
+        return res.status(401).json({ error: "Invalid token" });
     }
 
 }
@@ -85,7 +90,7 @@ app.post("/auth/signin", (req, res) => {
     }
 });
 
-app.post("/todos", (req, res) => {
+app.post("/todos", auth, (req, res) => {
     const { name, status } = req.body;
     try {
         if (!name) return res.status(400).json({ message: "Name is required" });
@@ -100,7 +105,7 @@ app.post("/todos", (req, res) => {
     }
 });
 
-app.delete("/users/:id", (req, res) => {
+app.delete("/users/:id", auth, (req, res) => {
     const { id } = req.params;
     try {
         const query = db.prepare("DELETE FROM users WHERE id = ?").run(id);
