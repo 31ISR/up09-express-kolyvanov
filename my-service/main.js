@@ -1,8 +1,27 @@
 const express = require('express');
 const db = require('./db');
 const jwt = require('jsonwebtoken');
-const SECRET = 'kjkdjfdkdjfdkf';
+const bcr = require('bcrypt');
 const app = express();
+app.use(express.json());
+
+const auth = (req, res, next) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) return res.status(401).json({ message: "Authorization header is missing" });
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) return res.status(401).json({ error: "Token is missing" });
+
+    try {
+        const decoded = jwt.verify(token, SECRET);
+    } catch (error) {
+        console.error(error);
+    }
+
+}
+
 
 
 
@@ -67,11 +86,11 @@ app.post("/auth/signin", (req, res) => {
 });
 
 app.post("/todos", (req, res) => {
-    const { title, completed } = req.body;
+    const { name, status } = req.body;
     try {
-        if (!title) return res.status(400).json({ message: "Title is required" });
+        if (!name) return res.status(400).json({ message: "Name is required" });
 
-        const query = db.prepare("INSERT INTO todos (title, completed) VALUES (?, ?)").run(title, completed);
+        const query = db.prepare("INSERT INTO todos (name, status) VALUES (?, ?)").run(name, status);
         const newTodo = db.prepare("SELECT * FROM todos WHERE id = ?").get(query.lastInsertRowid);
 
         res.status(200).json(newTodo);
@@ -94,5 +113,8 @@ app.delete("/users/:id", (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
+
+
+
 
 app.listen(3000);
